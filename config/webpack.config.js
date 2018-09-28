@@ -3,6 +3,24 @@ const webpack = require('webpack');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const autoprefixer = require('autoprefixer');
 const precss = require('precss');
+const isPROD = process.env.NODE_ENV === 'production';
+
+const plugins = [
+  new ExtractTextPlugin('react-draft-wysiwyg.css'),
+  new webpack.LoaderOptionsPlugin({
+    options: {
+      postcss: [autoprefixer, precss],
+    },
+  })
+];
+
+if (isPROD) {
+  plugins.push(new webpack.optimize.UglifyJsPlugin({
+      compressor: {
+        warnings: false,
+      },
+    }));
+}
 
 module.exports = {
   devtool: 'source-map',
@@ -11,7 +29,7 @@ module.exports = {
   ],
   output: {
     path: path.join(__dirname, '../dist'),
-    filename: 'react-draft-wysiwyg.js',
+    filename: isPROD ? 'react-draft-wysiwyg.min.js' : 'react-draft-wysiwyg.js',
     library: 'reactDraftWysiwyg',
     libraryTarget: 'umd',
   },
@@ -21,24 +39,7 @@ module.exports = {
     'react-dom': 'react-dom',
     'draft-js': 'draft-js',
   },
-  plugins: [
-    new webpack.DefinePlugin({
-      'process.env': {
-        NODE_ENV: JSON.stringify('production'),
-      },
-    }),
-    new webpack.optimize.UglifyJsPlugin({
-      compressor: {
-        warnings: false,
-      },
-    }),
-    new ExtractTextPlugin('react-draft-wysiwyg.css'),
-    new webpack.LoaderOptionsPlugin({
-      options: {
-        postcss: [autoprefixer, precss],
-      },
-    }),
-  ],
+  plugins: plugins,
   module: {
     loaders: [
       { test: /\.js$/, loader: 'babel-loader', exclude: /immutable\.js$|draftjs-utils\.js$/ },
