@@ -144,9 +144,9 @@ export default class WysiwygEditor extends Component {
       this.props.editorState !== props.editorState
     ) {
       if (props.editorState) {
-        newState.editorState = EditorState.set(props.editorState, {
-          decorator: this.compositeDecorator
-        });
+        // NOTE(preetriti): Once the decorators are set in the editor state in constructor, it is always preserved
+        // unless someone does a set which should not be done on re-renders. Hence not setting the decorators here.
+        newState.editorState = props.editorState;
       } else {
         newState.editorState = EditorState.createEmpty(this.compositeDecorator);
       }
